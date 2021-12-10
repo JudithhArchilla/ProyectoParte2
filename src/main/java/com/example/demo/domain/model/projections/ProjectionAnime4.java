@@ -6,13 +6,15 @@ import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import java.util.Set;
 import java.util.UUID;
 
-@JsonPropertyOrder ({"genreid","label"})
-public interface ProjectionGenres2 {
+@JsonPropertyOrder({"animeid","name","type","year", "imageurl"})
+public interface ProjectionAnime4 {
 
-    UUID getGenreid();
-    String getLabel();
+    UUID getAnimeid();
+    String getName();
+    String getType();
+    String getYear();
+    String getImageurl();
 
     @JsonIgnoreProperties("animes")
-    Set<ProjectionAnime4> getAnimes();
-
+    Set<ProjectionAuthor2> getAuthors();
 }

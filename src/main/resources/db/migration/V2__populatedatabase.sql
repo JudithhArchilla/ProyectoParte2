@@ -20,3 +20,6 @@ INSERT INTO anime_author VALUES
 INSERT INTO anime_genre VALUES
     ((SELECT animeid FROM anime WHERE name ='Anime 1'),(SELECT genreid FROM genre WHERE label='Genre 1')),
     ((SELECT animeid FROM anime WHERE name ='Anime 2'),(SELECT genreid FROM genre WHERE label='Genre 2'));
+
+INSERT INTO favorite VALUES
+    ((SELECT userid FROM usser WHERE username = 'user'),(SELECT animeid FROM anime WHERE name ='Anime 1'));

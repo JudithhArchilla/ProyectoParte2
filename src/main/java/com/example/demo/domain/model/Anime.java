@@ -32,5 +32,8 @@ public class Anime {
     @JsonIgnoreProperties("animes")
     public Set<Genre> genres;
 
-
+    @ManyToMany
+    @JoinTable(name = "favorite", joinColumns = @JoinColumn(name = "animeid"), inverseJoinColumns = @JoinColumn(name = "userid"))
+    @JsonIgnoreProperties("animes")
+    public Set<User> favoritedby;
 }

@@ -55,6 +55,8 @@ CREATE TABLE file (
     data bytea);
 
 
+
+
 CREATE TABLE usser (
   userid uuid NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   username varchar(24) NOT NULL UNIQUE,
@@ -63,3 +65,12 @@ CREATE TABLE usser (
   enabled boolean DEFAULT true
 );
 
+
+
+
+CREATE TABLE favorite (
+    userid uuid REFERENCES usser(userid) ON DELETE CASCADE,
+    animeid uuid REFERENCES anime(animeid) ON DELETE CASCADE,
+    PRIMARY KEY (userid, animeid));
+
+)

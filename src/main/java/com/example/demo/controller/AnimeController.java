@@ -24,7 +24,7 @@ public class AnimeController {
 
     @GetMapping("/")
     public ResponseEntity<?> findAllAnime(Authentication authentication) {
-        return ResponseEntity.ok().body(ListResult.list(animeRepository.findBy(Anime.class)));
+        return ResponseEntity.ok().body(new ListResult(animeRepository.findBy(ProjectionAnime.class)));
     }
 
     /*

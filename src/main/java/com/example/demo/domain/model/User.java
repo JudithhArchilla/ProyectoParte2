@@ -20,6 +20,5 @@ public class User {
     public boolean enabled;
 
     @ManyToMany(mappedBy = "favoritedby")
-    @JsonIgnoreProperties("favoritedby")
     public Set<Anime> favorites;
 }

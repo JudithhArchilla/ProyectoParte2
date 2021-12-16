@@ -11,5 +11,5 @@ public class Favorite {
     @Id
     public UUID userid;
 
-    public UUID movieid;
+    public UUID animeid;
 }

@@ -1,18 +1,18 @@
 package com.example.demo.controller;
 
+import com.example.demo.domain.dto.ErrorMessage;
+import com.example.demo.domain.dto.FavoriteCreateRequest;
 import com.example.demo.domain.dto.ListResult;
 import com.example.demo.domain.dto.UserRegisterRequest;
-import com.example.demo.domain.dto.ErrorMessage;
-import com.example.demo.domain.model.Anime;
 import com.example.demo.domain.model.Favorite;
 import com.example.demo.domain.model.User;
 import com.example.demo.domain.model.projections.ProjectionUserDetail;
 import com.example.demo.repository.FavoriteRepository;
 import com.example.demo.repository.UserRepository;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -55,15 +55,24 @@ public class UserController {
         return ResponseEntity.ok().body(ListResult.list(userRepository.findByUserid(id, ProjectionUserDetail.class)));
     }
 
-    @PostMapping("/{id}/favorites")
-    public ResponseEntity<?> addFavorite(@RequestBody Favorite favorite, Authentication authentication) {
-        if (userRepository.findByUsername(authentication.name()).userid.equals(favorite.userid)) {
-            favoriteRepository.save(favorite);
-            return ResponseEntity.ok().build();
-        }
+    @PostMapping("/favorites")
+    public ResponseEntity<?> addFavorite(@RequestBody FavoriteCreateRequest favoriteCreateRequest, Authentication authentication) {
 
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorMessage.message("Not authorized"));
+        Favorite favorite = new Favorite();
+        favorite.animeid = favoriteCreateRequest.animeid;
+        favorite.userid = userRepository.findByUsername(authentication.getName()).userid;
+        favoriteRepository.save(favorite);
+        return ResponseEntity.ok().build();
     }
+
+   @DeleteMapping("/favorites")
+    public ResponseEntity<?> delete(@RequestBody FavoriteCreateRequest favoriteCreateRequest) {
+
+        favoriteRepository.deleteByAnimeid(favoriteCreateRequest.animeid);
+        return ResponseEntity.ok().body(ErrorMessage.message("S'ha eliminat el favorite amd id  '" + favoriteCreateRequest.animeid + "'"));
+
+    }
+
 
 
     //Afegeix un usuari

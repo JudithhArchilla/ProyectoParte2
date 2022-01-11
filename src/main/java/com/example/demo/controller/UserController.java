@@ -50,12 +50,11 @@ public class UserController {
         return ResponseEntity.ok().body(ListResult.list(userRepository.findBy()));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getUser(@PathVariable UUID id){
-        return ResponseEntity.ok().body(ListResult.list(userRepository.findByUserid(id, ProjectionUserDetail.class)));
+    @GetMapping("/favorites")
+    public ResponseEntity<?> getUser(Authentication authentication){
+        return ResponseEntity.ok().body(ListResult.list(userRepository.findByUsername(authentication.getName(), ProjectionUserDetail.class)));
     }
-
-    @PostMapping("/favorites")
+   /* @PostMapping("/favorites")
     public ResponseEntity<?> addFavorite(@RequestBody FavoriteCreateRequest favoriteCreateRequest, Authentication authentication) {
 
         Favorite favorite = new Favorite();
@@ -63,8 +62,19 @@ public class UserController {
         favorite.userid = userRepository.findByUsername(authentication.getName()).userid;
         favoriteRepository.save(favorite);
         return ResponseEntity.ok().build();
-    }
+    }*/
+    @PostMapping("/favorites")
+    public ResponseEntity<?> addFavorite(@RequestBody Favorite favorite, Authentication authentication) {
+        if (userRepository.findByUsername(authentication.getName()).userid.equals(favorite.userid)) {
+            favoriteRepository.save(favorite);
+            return ResponseEntity.ok().body(favorite);
+        }else {
+            return ResponseEntity.status(HttpStatus.OK).body(ErrorMessage.message("No s'ha trobat l'anime amd id '" + favorite.animeid  + "'"));
 
+            //return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorMessage.message("Not authorized"));
+        }
+
+    }
    @DeleteMapping("/favorites")
     public ResponseEntity<?> delete(@RequestBody FavoriteCreateRequest favoriteCreateRequest) {
 

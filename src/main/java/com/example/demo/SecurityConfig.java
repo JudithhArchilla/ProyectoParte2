@@ -32,7 +32,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                         .permitAll()
                     .anyRequest()
                         .authenticated()
-                //      .permitAll()
+                 //.permitAll()
                 .and()
                 .httpBasic();
     }

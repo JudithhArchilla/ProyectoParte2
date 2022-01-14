@@ -1,12 +1,14 @@
 package com.example.demo.controller;
 
 import com.example.demo.domain.dto.ErrorMessage;
-import com.example.demo.domain.dto.FavoriteCreateRequest;
 import com.example.demo.domain.dto.ListResult;
+import com.example.demo.domain.dto.RequestFavorite;
 import com.example.demo.domain.dto.UserRegisterRequest;
+import com.example.demo.domain.model.Anime;
 import com.example.demo.domain.model.Favorite;
 import com.example.demo.domain.model.User;
-import com.example.demo.domain.model.projections.ProjectionUserDetail;
+import com.example.demo.domain.model.projections.ProjectionFavorites;
+import com.example.demo.repository.AnimeRepository;
 import com.example.demo.repository.FavoriteRepository;
 import com.example.demo.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,8 +26,11 @@ public class UserController {
 
     @Autowired
     private UserRepository userRepository;
+
     @Autowired
     private FavoriteRepository favoriteRepository;
+    @Autowired
+    private AnimeRepository animeRepository;
     @Autowired
     private BCryptPasswordEncoder passwordEncoder;
 
@@ -52,35 +57,61 @@ public class UserController {
 
     @GetMapping("/favorites")
     public ResponseEntity<?> getUser(Authentication authentication){
-        return ResponseEntity.ok().body(ListResult.list(userRepository.findByUsername(authentication.getName(), ProjectionUserDetail.class)));
-    }
-   /* @PostMapping("/favorites")
-    public ResponseEntity<?> addFavorite(@RequestBody FavoriteCreateRequest favoriteCreateRequest, Authentication authentication) {
+        if (authentication != null) {
+            User authenticatedUser = userRepository.findByUsername(authentication.getName());
 
-        Favorite favorite = new Favorite();
-        favorite.animeid = favoriteCreateRequest.animeid;
-        favorite.userid = userRepository.findByUsername(authentication.getName()).userid;
-        favoriteRepository.save(favorite);
-        return ResponseEntity.ok().build();
-    }*/
-    @PostMapping("/favorites")
-    public ResponseEntity<?> addFavorite(@RequestBody Favorite favorite, Authentication authentication) {
-        if (userRepository.findByUsername(authentication.getName()).userid.equals(favorite.userid)) {
-            favoriteRepository.save(favorite);
-            return ResponseEntity.ok().body(favorite);
-        }else {
-            return ResponseEntity.status(HttpStatus.OK).body(ErrorMessage.message("No s'ha trobat l'anime amd id '" + favorite.animeid  + "'"));
-
-            //return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorMessage.message("Not authorized"));
+            if (authenticatedUser != null) {
+                return ResponseEntity.ok().body(userRepository.findByUsername(authentication.getName(), ProjectionFavorites.class));
+            }
         }
 
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorMessage.message("No autorizado"));
     }
-   @DeleteMapping("/favorites")
-    public ResponseEntity<?> delete(@RequestBody FavoriteCreateRequest favoriteCreateRequest) {
 
-        favoriteRepository.deleteByAnimeid(favoriteCreateRequest.animeid);
-        return ResponseEntity.ok().body(ErrorMessage.message("S'ha eliminat el favorite amd id  '" + favoriteCreateRequest.animeid + "'"));
+    @PostMapping("/favorites")
+    public ResponseEntity<?> addFavorite(@RequestBody RequestFavorite requestFavorite, Authentication authentication) {
 
+        Anime anime = animeRepository.findByAnimeid(requestFavorite.animeid);
+        if (authentication != null) {
+            User authenticatedUser = userRepository.findByUsername(authentication.getName());
+
+            if (authenticatedUser != null) {
+                if (anime != null) {
+                    Favorite favorite = new Favorite();
+                    favorite.animeid = requestFavorite.animeid;
+                    favorite.userid = authenticatedUser.userid;
+                    favoriteRepository.save(favorite);
+                    return ResponseEntity.ok().body(favorite);
+                }else{
+                    return ResponseEntity.status(HttpStatus.OK).body(ErrorMessage.message("No s'ha trobat l'anime amd id '" + requestFavorite.animeid + "'"));
+                }
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorMessage.message("No autorizado"));
+
+            //return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorMessage.message("Not authorized"));
+
+    }
+    @DeleteMapping("/favorites")
+    public ResponseEntity<?> delFavorite(@RequestBody RequestFavorite requestFavorite, Authentication authentication) {
+        Favorite favorite1 = favoriteRepository.findByAnimeid(requestFavorite.animeid);
+        if (authentication != null) {
+            User authenticatedUser = userRepository.findByUsername(authentication.getName());
+            if (authenticatedUser != null) {
+                if (favorite1 != null) {
+                    Favorite favorite = new Favorite();
+                    favorite.animeid = requestFavorite.animeid;
+                    favorite.userid = authenticatedUser.userid;
+                    favoriteRepository.delete(favorite);
+                    return ResponseEntity.ok().body(ErrorMessage.message(" S'ha eliminat dels favorits l'anime amd id'" + requestFavorite.animeid + "'"));
+                }else{
+                    return ResponseEntity.status(HttpStatus.OK).body(ErrorMessage.message("No s'ha trobat l'anime amd id '" + requestFavorite.animeid + "'"));
+                }
+            }
+        }
+
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(ErrorMessage.message("No autorizado"));
     }
 
 

@@ -7,5 +7,6 @@ import java.util.UUID;
 
 public interface FavoriteRepository extends JpaRepository<Favorite, UUID> {
     void deleteByAnimeid(UUID id);
+    Favorite findByAnimeid(UUID id);
 
 }
